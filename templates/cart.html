@@ -1,0 +1,46 @@
+{% extends "layout.html" %} {% block content %}
+<div class="display container">
+	<div class="card shadow-lg">
+	  <div class="card-header">Shopping Cart</div>
+	  <div class="card-body">
+
+		
+<div id="cartItems">
+	<div class="item-container">
+		{% for row in products %}
+
+		<div class="card text-center item-card shadow-lg">
+			<div class="card-header">
+				{{row[1]}}
+			</div>
+
+			<div class="card-body">
+			  <p class="card-text">
+				<img src={{url_for('static', filename='uploads/'+row[3])}} id="itemImage"/>
+			  </p>
+			  <div id="itemPrice">
+				Rs. {{row[2]}}
+			</div>
+			<span id="itemNameTag">{{row[1]}}</span><br>
+				In stock<br>
+			</div>
+			<div class="card-footer text-muted">
+				<a href="/removeFromCart?productId={{row[0]}}" class="btn btn-primary shadow">Remove</a>
+			</div>
+		  </div>
+			
+		{% endfor %}
+		
+	</div>
+	<hr >
+		<div id="total">
+			<span id="subtotal">Subtotal</span> : Rs {{totalPrice}}
+		</div>
+</div>
+
+<a href="/checkout" class="btn btn-sm btn-primary">Proceed to checkout</a>
+</div></div></div>
+</div>
+
+<div>{% endblock content %}</div>
+

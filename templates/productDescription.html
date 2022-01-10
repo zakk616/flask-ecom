@@ -1,0 +1,21 @@
+{% extends "layout.html" %} {% block content %}
+    <div class="display main-card shadow">
+		<div class="item-container">
+			<div class="card text-center item-card shadow-lg">
+			  <div class="card-header">
+				{{data[1]}}
+			  </div>
+			  <ul class="list-group list-group-flush">
+				<li class="list-group-item"><img src={{url_for('static', filename='uploads/'+data[4]) }} id="itemImage"/></li>
+				<li class="list-group-item">Price Rs.{{data[2]}}</li>
+				<li class="list-group-item">{{data[5]}} in Stock</li>
+			  </ul>
+			  <div class="card-footer text-muted">
+				<a class="btn btn-primary " href="/addToCart?productId={{request.args.get('productId')}}">Add to Cart</a>
+			  </div>
+			</div>
+		  </div>
+</div>
+</div>
+<div>{% endblock content %}</div>
+
