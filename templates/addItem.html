@@ -1,10 +1,247 @@
 {% extends "admin-layout.html" %} {% block content %}
-<div class="display main-card shadow">
-    <h2>Add Item</h2>
+<div class="row">
+  <div class="display main-card shadow">
+    <h2>Add Products</h2>
     <div class="item-container">
-        test
+      <form method="POST" enctype="multipart/form-data">
+        <div class="row">
+          
+            <div class="col-md-6">
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text full" id="inputGroup-sizing-default">Name</span>
+                </div>
+                <input type="text" name="name" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default" required>
+              </div>
+
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text full" id="inputGroup-sizing-default">Price</span>
+                </div>
+                <input type="text" name="price" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default" required>
+              </div>
+
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text full" id="inputGroup-sizing-default">Description</span>
+                </div>
+                <input type="text" name="description" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text full">Image</span>
+                </div>
+                <div class="custom-file">
+                  <input type="file" name="image" class="custom-file-input" id="inputGroupFile01" required>
+                  <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                </div>
+              </div>
+
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text full" id="inputGroup-sizing-default">Stock</span>
+                </div>
+                <input type="text" name="stock" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default" required>
+              </div>
+
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <label class="input-group-text full" for="inputGroupSelect01">Category</label>
+                </div>
+                <select class="custom-select" name="category" id="inputGroupSelect01">
+                  {% for row in categories %}
+                    <option value="{{row[0]}}">{{row[1]}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            
+          
+        </div>
+        <div class="row">
+          <div class="col">
+            <input
+              type="submit"
+              class="form-control btn btn-dark shadow"
+              value="Add Product"
+              name="action"
+            />
+          </div>
+        </div>
+      </form>
     </div>
 </div>
+</div>
+<br>
+
+
+
+<div class="row">
+  <div class="display main-card shadow">
+    <h2>Products</h2>
+    <div class="item-container">
+        <div class="row" style="width: 100%;margin-right: auto;
+        margin-left: auto;">
+          <table class="table table-hover table-bordered" >
+            <tr>
+              <td><strong>Product ID</strong></td>
+              <td><strong>Name</strong></td>
+              <td><strong>Price</strong></td>
+              <td><strong>Description</strong></td>
+              <td><strong>Image</strong></td>
+
+            </tr>
+            {% for product in products %}
+            {% for row in product %}
+            <tr>
+              <td class="siteId">{{row[0]}}</td>
+              <td>{{row[1]}}</td>
+              <td>{{row[2]}}</td>
+              <td>{{row[3]}}</td>
+              <td>
+                <img src={{ url_for('static', filename='uploads/' + row[4]) }}
+            id="itemIcon" />
+              </td>
+              <td>
+                <button
+                  type="button"
+                  class="btn btn-dark btn-sm"
+                  data-toggle="modal"
+                  data-target="#modaledit{{row[0]}}"
+                >
+                  Edit
+                </button>
+                <button type="button"
+                class="btn btn-danger btn-sm"
+                data-toggle="model"
+                
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+
+            <div id="modaledit{{row[0]}}" class="modal fade" role="dialog">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div style="text-align: center">
+                    <h4 class="modal-title">Update Product</h4>
+                  </div>
+                  <div class="modal-body">
+                    <form action="{{url_for('updateProduct')}}" method="POST">
+      
+                      <div class="form-group">
+                        <div class="col-sm input-group mb-3">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text full" id="scode"
+                              >Name</span
+                            >
+                          </div>
+                          <input type="hidden" name="productId" value="{{row[0]}}" />
+                          <input
+                            autocomplete="off"
+                            type="text"
+                            class="form-control"
+                            value="{{row[1]}}"
+                            name="name"
+                            aria-label="scode"
+                            aria-describedby="scode"
+                            required
+                          />
+                        </div>
+                      </div>
+      
+                      <div class="form-group">
+                <div class="col-sm input-group mb-3">
+                  <div class="input-group-prepend">
+                  <span class="input-group-text full" id="price"
+                    >Price</span
+                  >
+                  </div>
+                  <input
+                  autocomplete="off"
+                  type="text"
+                  class="form-control"
+                  value="{{row[2]}}"
+                  name="price"
+                  aria-label="price"
+                  aria-describedby="price"
+                  required
+                  />
+                </div>
+                </div>
+      
+      
+                      <div class="form-group">
+                        <div class="col-sm input-group mb-3">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text full" id="description"
+                              >Description</span
+                            >
+                          </div>
+                          <input
+                            autocomplete="off"
+                            type="text"
+                  class="form-control"
+                  value="{{row[3]}}"
+                            name="description
+                            aria-label="description"
+                            aria-describedby="description"
+                            required
+                          />
+                        </div>
+                      </div>
+      
+                      <div class="form-group">
+                        <div class="col-sm input-group mb-3">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text full" id="image"
+                              >Image</span
+                            >
+                          </div>
+                          <div class="custom-file">
+                            <input type="file" name="image" class="custom-file-input" id="file{{row[0]}}" required>
+                            <label class="custom-file-label" for="file{{row[0]}}">Choose file</label>
+                          </div>
+                        </div>
+                      </div>
+                      <img src={{ url_for('static', filename='uploads/' + row[4]) }} id="itemImage" />
+      
+                      <div style="text-align: center">
+                        <button class="btn btn-dark btn-sm" type="submit">
+                          Update
+                        </button>
+                        <button class="btn btn-dark btn-sm" data-dismiss="modal">
+                          Close
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+            {% endfor %}
+          </table>
+        </div>
+    </div>
+</div>
+</div>
+
+
 
 </div>
+<script>
+  document
+    .querySelector(".custom-file-input")
+    .addEventListener("change", function (e) {
+      var fileName = document.getElementById("inputGroupFile01").files[0].name;
+      var nextSibling = e.target.nextElementSibling;
+      nextSibling.innerText = fileName;
+    });
+
+  
+</script>
 <div>{% endblock content %}</div>

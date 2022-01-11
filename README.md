@@ -12,3 +12,8 @@ pip 9.0.1
 Flask version: '0.12.2'
 
 Sqlite
+
+
+# hosted on heroku
+
+https://iec-ecom.herokuapp.com/

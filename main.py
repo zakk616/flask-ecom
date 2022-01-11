@@ -73,10 +73,46 @@ def addItem():
         print(msg)
         return redirect(url_for('root'))
     else:
-        return render_template("addItem.html")
+        with sqlite3.connect('database.db') as conn:
+            cur = conn.cursor()
+            cur.execute(
+                'SELECT productId, name, price, description, image, stock FROM products order by productId desc')
+            products = cur.fetchall()
+            cur.execute('SELECT categoryId, name FROM categories')
+            categories = cur.fetchall()
+
+        products = parse(products)
+
+        return render_template("addItem.html", products=products, categories=categories)
 
 
-@app.route("/removeItem")
+@app.route('/updateProduct')
+def updateProduct():
+    if request.method == "POST":
+        pid = request.form.get('productId')
+        name = request.form['name']
+        price = request.form['price']
+        description = request.form['description']
+        image = request.files['image']
+        if image and allowed_file(image.filename):
+            filename = secure_filename(image.filename)
+            image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        imagename = filename
+
+        with sqlite3.connect('database.db') as conn:
+            try:
+                cur = conn.cursor()
+                cur.execute(" UPDATE products SET name='"+name+"', price='"+price +
+                            "', description='"+description+"', image='"+imagename+"' WHERE productId='"+pid+"' ")
+                conn.commit()
+            except:
+                conn.rollback()
+        conn.close()
+        return redirect(url_for('addItem'))
+    return redirect(url_for('addItem'))
+
+
+@ app.route("/removeItem")
 def removeItem():
     if request.method == "POST":
         productId = request.args.get('productId')
@@ -97,7 +133,7 @@ def removeItem():
         return render_template("removeItem.html")
 
 
-@app.route("/displayCategory")
+@ app.route("/displayCategory")
 def displayCategory():
     loggedIn, firstName, noOfItems = getLoginDetails()
     categoryId = request.args.get("categoryId")
@@ -111,7 +147,7 @@ def displayCategory():
     return render_template('displayCategory.html', data=data, loggedIn=loggedIn, firstName=firstName, noOfItems=noOfItems, categoryName=categoryName)
 
 
-@app.route("/account/profile")
+@ app.route("/account/profile")
 def profileHome():
     if 'email' not in session:
         return redirect(url_for('root'))
@@ -119,7 +155,7 @@ def profileHome():
     return render_template("profileHome.html", loggedIn=loggedIn, firstName=firstName, noOfItems=noOfItems)
 
 
-@app.route("/account/profile/view")
+@ app.route("/account/profile/view")
 def viewProfile():
     if 'email' not in session:
         return redirect(url_for('root'))
@@ -133,7 +169,7 @@ def viewProfile():
     return render_template("viewProfile.html", profileData=profileData, loggedIn=loggedIn, firstName=firstName, noOfItems=noOfItems)
 
 
-@app.route("/account/profile/edit")
+@ app.route("/account/profile/edit")
 def editProfile():
     if 'email' not in session:
         return redirect(url_for('root'))
@@ -147,7 +183,7 @@ def editProfile():
     return render_template("editProfile.html", profileData=profileData, loggedIn=loggedIn, firstName=firstName, noOfItems=noOfItems)
 
 
-@app.route("/account/profile/changePassword", methods=["GET", "POST"])
+@ app.route("/account/profile/changePassword", methods=["GET", "POST"])
 def changePassword():
     if 'email' not in session:
         return redirect(url_for('loginForm'))
@@ -180,7 +216,7 @@ def changePassword():
         return render_template("changePassword.html", loggedIn=loggedIn, firstName=firstName, noOfItems=noOfItems)
 
 
-@app.route("/updateProfile", methods=["GET", "POST"])
+@ app.route("/updateProfile", methods=["GET", "POST"])
 def updateProfile():
     if request.method == 'POST':
         email = request.form['email']
@@ -207,7 +243,7 @@ def updateProfile():
         return redirect(url_for('viewProfile'))
 
 
-@app.route("/loginForm")
+@ app.route("/loginForm")
 def loginForm():
     if 'email' in session:
         return redirect(url_for('root'))
@@ -215,7 +251,7 @@ def loginForm():
         return render_template('login.html', error='')
 
 
-@app.route("/login", methods=['POST', 'GET'])
+@ app.route("/login", methods=['POST', 'GET'])
 def login():
     if request.method == 'POST':
 
@@ -230,7 +266,7 @@ def login():
             return render_template('login.html', error=error)
 
 
-@app.route("/productDescription")
+@ app.route("/productDescription")
 def productDescription():
     loggedIn, firstName, noOfItems = getLoginDetails()
     productId = request.args.get('productId')
@@ -243,7 +279,7 @@ def productDescription():
     return render_template("productDescription.html", data=productData, loggedIn=loggedIn, firstName=firstName, noOfItems=noOfItems)
 
 
-@app.route("/cart")
+@ app.route("/cart")
 def cart():
     if 'email' not in session:
         return redirect(url_for('loginForm'))
@@ -261,7 +297,7 @@ def cart():
     return render_template("cart.html", products=products, totalPrice=totalPrice, loggedIn=loggedIn, firstName=firstName, noOfItems=noOfItems)
 
 
-@app.route("/addToCart")
+@ app.route("/addToCart")
 def addToCart():
     if 'email' not in session:
         return redirect(url_for('loginForm'))
@@ -284,7 +320,7 @@ def addToCart():
         return redirect(url_for('root'))
 
 
-@app.route("/removeFromCart")
+@ app.route("/removeFromCart")
 def removeFromCart():
     if 'email' not in session:
         return redirect(url_for('loginForm'))
@@ -306,7 +342,7 @@ def removeFromCart():
     return redirect(url_for('root'))
 
 
-@app.route("/checkout")
+@ app.route("/checkout")
 def checkout():
     if 'email' not in session:
         return redirect(url_for('loginForm'))
@@ -324,13 +360,13 @@ def checkout():
     return render_template("checkout.html", products=products, totalPrice=totalPrice, loggedIn=loggedIn, firstName=firstName, noOfItems=noOfItems)
 
 
-@app.route("/logout")
+@ app.route("/logout")
 def logout():
     session.pop('email', None)
     return redirect(url_for('root'))
 
 
-@app.route("/cpanel")
+@ app.route("/cpanel")
 def cpanel():
     return render_template("cpanel.html")
 
@@ -346,12 +382,12 @@ def is_valid(email, password):
     return False
 
 
-@app.route("/registerationForm")
+@ app.route("/registerationForm")
 def registrationForm():
     return render_template("register.html")
 
 
-@app.route("/register", methods=['GET', 'POST'])
+@ app.route("/register", methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         # Parse form data
